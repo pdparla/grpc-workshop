@@ -1,0 +1,56 @@
+// src/main/proto/quotation.proto
+syntax = "proto3";
+
+package insurance.quotation;
+
+option java_package = "com.example.demo.grpc";
+option java_outer_classname = "QuotationProto";
+option java_multiple_files = true;
+
+// Servicio de Cotización
+service QuotationService {
+  // Cotización simple
+  rpc GetQuote(QuoteRequest) returns (QuoteResponse);
+  
+  // Múltiples cotizaciones (streaming)
+  rpc GetMultipleQuotes(QuoteRequest) returns (stream QuoteResponse);
+  
+  // Actualizaciones en tiempo real (bidirectional streaming)
+  rpc QuoteLiveUpdates(stream QuoteRequest) returns (stream QuoteResponse);
+}
+
+// Mensajes
+message QuoteRequest {
+  string customer_id = 1;
+  Vehicle vehicle = 2;
+  repeated Coverage coverages = 3;
+}
+
+message Vehicle {
+  string brand = 1;
+  string model = 2;
+  int32 year = 3;
+  string license_plate = 4;
+}
+
+message Coverage {
+  string type = 1;  // LIABILITY, COLLISION, COMPREHENSIVE
+  double limit = 2;
+}
+
+message QuoteResponse {
+  string quote_id = 1;
+  string customer_id = 2;
+  double monthly_premium = 3;
+  double annual_premium = 4;
+  string package_type = 5;
+  repeated CoverageDetail coverage_details = 6;
+  int64 valid_until_timestamp = 7;
+}
+
+message CoverageDetail {
+  string type = 1;
+  double premium = 2;
+  double deductible = 3;
+  double limit = 4;
+}
