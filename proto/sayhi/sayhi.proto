@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option java_package = "com.grpc.sayhi";
+option java_outer_classname = "SayHiProto";
+option java_multiple_files = true;
+
+// SayHi Service - Demonstrates all 4 gRPC communication patterns
+service SayHiService {
+  // 1. Unary RPC: Send "hi" → Receive "hi" back
+  rpc SayHi(HiRequest) returns (HiResponse);
+  
+  // 2. Client Streaming RPC: Send multiple "hi" messages → Receive count
+  rpc ClientStreamHi(stream HiRequest) returns (HiCountResponse);
+  
+  // 3. Server Streaming RPC: Send one request → Receive multiple "hi" messages
+  rpc ServerStreamHi(HiCountRequest) returns (stream HiResponse);
+  
+  // 4. Bidirectional Streaming RPC: Exchange "hi" messages for 2 seconds
+  rpc BidirectionalHi(stream HiRequest) returns (stream HiResponse);
+}
+
+// Simple "hi" message
+message HiRequest {
+  string message = 1;    // "hi"
+  string sender = 2;     // who is sending
+}
+
+// Simple "hi" response
+message HiResponse {
+  string message = 1;    // "hi"
+  string sender = 2;     // who is responding
+}
+
+// Request to specify how many "hi" messages to send
+message HiCountRequest {
+  int32 count = 1;       // how many "hi" messages to send (1-5)
+  string sender = 2;     // who is requesting
+}
+
+// Response with count of received messages
+message HiCountResponse {
+  int32 received_count = 1;  // how many "hi" messages were received
+  string message = 2;        // confirmation message
+}
