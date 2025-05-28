@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package insurance.quotation;
+
+option java_package = "com.insurance.grpc.quotation";
+option java_outer_classname = "QuotationProto";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+import "common/types.proto";
+
+// Quotation Service - THREE methods demonstrating 3 gRPC patterns
+service QuotationService {
+  // 1. Unary RPC: Simple quote creation and premium calculation
+  rpc CreateQuote(QuoteRequest) returns (QuoteResponse);
+  
+  // 2. Client Streaming RPC: Upload multiple customer documents
+  rpc UploadDocuments(stream DocumentUpload) returns (DocumentUploadResponse);
+  
+  // 3. Bidirectional Streaming RPC: Interactive quote negotiation chat
+  rpc NegotiateQuote(stream NegotiationMessage) returns (stream NegotiationResponse);
+}
+
+// === UNARY RPC MESSAGES ===
+
+// Quote creation request
+message QuoteRequest {
+  string request_id = 1;
+  insurance.common.Customer customer = 2;
+  insurance.common.Vehicle vehicle = 3;
+  repeated insurance.common.Coverage coverages = 4;
+}
+
+// Quote creation response
+message QuoteResponse {
+  string quote_id = 1;
+  insurance.common.Money monthly_premium = 2;
+  insurance.common.Money annual_premium = 3;
+  repeated CoverageDetail coverage_details = 4;
+  google.protobuf.Timestamp valid_until = 5;
+  string status = 6;
+}
+
+// Coverage detail in response
+message CoverageDetail {
+  insurance.common.CoverageType type = 1;
+  insurance.common.Money premium = 2;
+  double deductible = 3;
+  double limit = 4;
+}
+
+// === CLIENT STREAMING RPC MESSAGES ===
+
+// Document upload (client streaming)
+message DocumentUpload {
+  oneof upload_data {
+    DocumentMetadata metadata = 1;
+    insurance.common.DocumentChunk chunk = 2;
+  }
+}
+
+// Document metadata
+message DocumentMetadata {
+  string quote_id = 1;
+  string document_type = 2;  // "license", "registration", "insurance_card"
+  string filename = 3;
+  int64 total_size = 4;
+  int32 total_chunks = 5;
+}
+
+// Document upload response
+message DocumentUploadResponse {
+  string upload_id = 1;
+  int32 documents_received = 2;
+  int32 documents_processed = 3;
+  repeated string document_ids = 4;
+  string status = 5;  // "completed", "partial", "failed"
+  repeated string errors = 6;
+}
+
+// === BIDIRECTIONAL STREAMING RPC MESSAGES ===
+
+// Negotiation message (bidirectional streaming input)
+message NegotiationMessage {
+  string quote_id = 1;
+  string sender = 2;          // "customer" or "agent"
+  string message_type = 3;    // "text", "coverage_change", "premium_counter"
+  oneof content {
+    string text = 4;
+    CoverageChange coverage_change = 5;
+    PremiumCounter premium_counter = 6;
+  }
+  google.protobuf.Timestamp timestamp = 7;
+}
+
+// Coverage change proposal
+message CoverageChange {
+  insurance.common.CoverageType coverage_type = 1;
+  double new_limit = 2;
+  double new_deductible = 3;
+  string reason = 4;
+}
+
+// Premium counter offer
+message PremiumCounter {
+  insurance.common.Money proposed_premium = 1;
+  string justification = 2;
+}
+
+// Negotiation response (bidirectional streaming output)
+message NegotiationResponse {
+  string quote_id = 1;
+  string response_type = 2;   // "message_received", "premium_updated", "quote_changed"
+  oneof content {
+    MessageReceived message_received = 3;
+    PremiumUpdate premium_update = 4;
+    QuoteUpdate quote_update = 5;
+    SystemMessage system_message = 6;
+  }
+  google.protobuf.Timestamp timestamp = 7;
+}
+
+// Message received confirmation
+message MessageReceived {
+  string sender = 1;
+  string message_preview = 2;
+}
+
+// Premium update during negotiation
+message PremiumUpdate {
+  insurance.common.Money new_monthly_premium = 1;
+  insurance.common.Money new_annual_premium = 2;
+  string change_reason = 3;
+}
+
+// Quote update during negotiation
+message QuoteUpdate {
+  repeated CoverageDetail updated_coverages = 1;
+  string change_summary = 2;
+}
+
+// System message
+message SystemMessage {
+  string message = 1;
+  string type = 2;  // "info", "warning", "error"
+}

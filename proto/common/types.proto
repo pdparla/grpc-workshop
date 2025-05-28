@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package insurance.common;
+
+option java_package = "com.insurance.grpc.common";
+option java_outer_classname = "CommonTypesProto";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+// Simple customer information
+message Customer {
+  string customer_id = 1;
+  string name = 2;
+  string email = 3;
+  int32 age = 4;
+  int32 years_licensed = 5;
+}
+
+// Simple vehicle information
+message Vehicle {
+  string brand = 1;
+  string model = 2;
+  int32 year = 3;
+  string license_plate = 4;
+  double value = 5;
+}
+
+// Simple coverage information
+message Coverage {
+  CoverageType type = 1;
+  double limit = 2;
+  double deductible = 3;
+}
+
+enum CoverageType {
+  COVERAGE_TYPE_UNSPECIFIED = 0;
+  LIABILITY = 1;
+  COLLISION = 2;
+  COMPREHENSIVE = 3;
+}
+
+// Simple money representation
+message Money {
+  double amount = 1;
+  string currency = 2;
+}
+
+// Document chunk for streaming
+message DocumentChunk {
+  string filename = 1;
+  bytes data = 2;
+  int32 chunk_number = 3;
+  bool is_last = 4;
+}

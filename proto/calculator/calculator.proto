@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package insurance.calculator;
+
+option java_package = "com.insurance.grpc.calculator";
+option java_outer_classname = "CalculatorProto";
+option java_multiple_files = true;
+
+import "common/types.proto";
+
+// Calculator Service - ONE method: Server Streaming RPC
+service CalculatorService {
+  // Server Streaming: Real-time risk factor updates during calculation
+  rpc StreamRiskAssessment(RiskRequest) returns (stream RiskUpdate);
+}
+
+// Risk assessment request
+message RiskRequest {
+  string request_id = 1;
+  insurance.common.Customer customer = 2;
+  insurance.common.Vehicle vehicle = 3;
+}
+
+// Risk assessment update (streaming response)
+message RiskUpdate {
+  string request_id = 1;
+  string stage = 2;                    // "Analyzing driver", "Checking vehicle", etc.
+  double progress_percentage = 3;       // 0-100
+  string current_task = 4;
+  repeated RiskFactor risk_factors = 5;
+  bool is_final = 6;
+}
+
+// Simple risk factor
+message RiskFactor {
+  string factor_name = 1;              // "Driver Age", "Vehicle Value", etc.
+  double risk_score = 2;               // 1-10 scale
+  string description = 3;
+}
