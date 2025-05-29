@@ -1,18 +1,18 @@
 import { Component } from '@angular/core';
-import { QuoteFormComponent } from './quote-form.component';
+import { SayHiComponent } from './components/say-hi/say-hi.component';
 
 @Component({
   selector: 'app-root',
-  imports: [QuoteFormComponent],
+  imports: [SayHiComponent],
   template: `
     <div class="app-container">
       <header class="app-header">
         <h1>🛡️ Insurance Portal</h1>
-        <p>gRPC Workshop - Unary RPC Pattern Demo</p>
+        <p>gRPC Workshop - RPC Pattern Demo</p>
       </header>
       
       <main class="app-main">
-        <app-quote-form></app-quote-form>
+        <app-say-hi></app-say-hi>
       </main>
       
       <footer class="app-footer">

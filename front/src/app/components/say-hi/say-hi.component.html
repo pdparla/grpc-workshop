@@ -1,0 +1,82 @@
+<div class="demo-container">
+      <h2>🚀 gRPC-Web Demo - All 4 Patterns</h2>
+      
+      <!-- Pattern 1: Unary RPC -->
+      <div class="pattern-section">
+        <h3>1️⃣ Unary RPC</h3>
+        <p>Single Request → Single Response</p>
+        <div class="controls">
+          <input [(ngModel)]="senderName" placeholder="Your name" />
+          <button (click)="testUnary()" [disabled]="loading.unary">
+            {{ loading.unary ? 'Sending...' : 'Say Hi' }}
+          </button>
+        </div>
+        <div class="result" *ngIf="results.unary">
+          <strong>Response:</strong> "{{ results.unary.getMessage() }}" from {{ results.unary.getSender() }}
+        </div>
+      </div>
+
+      <!-- Pattern 2: Client Streaming RPC -->
+      <div class="pattern-section">
+        <h3>2️⃣ Client Streaming RPC</h3>
+        <p>Multiple Requests → Single Response</p>
+        <div class="controls">
+          <input type="number" [(ngModel)]="clientStreamCount" min="1" max="5" />
+          <button (click)="testClientStreaming()" [disabled]="loading.clientStream">
+            {{ loading.clientStream ? 'Streaming...' : 'Send Multiple His' }}
+          </button>
+        </div>
+        <div class="result" *ngIf="results.clientStream">
+          <strong>Server Response:</strong> {{ results.clientStream.getMessage() }}
+          <br><strong>Count:</strong> {{ results.clientStream.getReceivedCount() }}
+        </div>
+      </div>
+
+      <!-- Pattern 3: Server Streaming RPC -->
+      <div class="pattern-section">
+        <h3>3️⃣ Server Streaming RPC</h3>
+        <p>Single Request → Multiple Responses</p>
+        <div class="controls">
+          <input type="number" [(ngModel)]="serverStreamCount" min="1" max="5" />
+          <button (click)="testServerStreaming()" [disabled]="loading.serverStream">
+            {{ loading.serverStream ? 'Receiving...' : 'Request Multiple His' }}
+          </button>
+        </div>
+        <div class="result" *ngIf="results.serverStream.length > 0">
+          <strong>Received:</strong>
+          <ul>
+            <li *ngFor="let msg of results.serverStream">
+              "{{ msg.getMessage() }}" from {{ msg.getSender() }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Pattern 4: Bidirectional Streaming RPC -->
+      <div class="pattern-section">
+        <h3>4️⃣ Bidirectional Streaming RPC</h3>
+        <p>Multiple Requests ↔ Multiple Responses</p>
+        <div class="controls">
+          <button (click)="startBidirectional()" [disabled]="bidirectionalActive">
+            Start 2-Second Exchange
+          </button>
+          <button (click)="sendBidirectionalHi()" [disabled]="!bidirectionalActive">
+            Send Hi
+          </button>
+          <button (click)="stopBidirectional()" [disabled]="!bidirectionalActive">
+            Stop
+          </button>
+        </div>
+        <div class="timer" *ngIf="bidirectionalActive">
+          🔄 Active for {{ bidirectionalTimeLeft }} seconds
+        </div>
+        <div class="result" *ngIf="results.bidirectional.length > 0">
+          <div class="chat-log">
+            <div *ngFor="let msg of results.bidirectional" 
+                 [class]="msg.type === 'sent' ? 'sent' : 'received'">
+              {{ msg.sender }}: "{{ msg.message }}"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

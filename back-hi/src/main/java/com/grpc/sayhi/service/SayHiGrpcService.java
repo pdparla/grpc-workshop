@@ -118,7 +118,6 @@ public class SayHiGrpcService extends SayHiServiceGrpc.SayHiServiceImplBase {
         return new StreamObserver<HiRequest>() {
             private final AtomicInteger messageCount = new AtomicInteger(0);
             private volatile boolean isActive = true;
-            private String clientName = "";
 
             {
                 // Auto-close after 2 seconds
@@ -135,7 +134,7 @@ public class SayHiGrpcService extends SayHiServiceGrpc.SayHiServiceImplBase {
             public void onNext(HiRequest request) {
                 if (!isActive) return;
 
-                clientName = request.getSender();
+                String clientName = request.getSender();
                 int msgNum = messageCount.incrementAndGet();
                 System.out.println("🔄 BIDIRECTIONAL: Received #" + msgNum + " '" +
                         request.getMessage() + "' from " + clientName);
