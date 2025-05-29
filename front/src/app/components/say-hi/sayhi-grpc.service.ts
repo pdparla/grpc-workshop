@@ -10,8 +10,8 @@ import { HiRequest, HiResponse, HiCountRequest, HiCountResponse } from '../../pr
   providedIn: 'root'
 })
 export class SayHiGrpcService {
-  // grpcwebproxy will run on port 8080
-  private readonly grpcWebEndpoint = 'http://localhost:8080';
+  // grpcwebproxy will run on port 8081
+  private readonly grpcWebEndpoint = 'http://localhost:8081';
 
   constructor() {}
 
@@ -136,7 +136,7 @@ export class SayHiGrpcService {
   } {
     const responseSubject = new Subject<HiResponse>();
     
-    console.log('🔄 BIDIRECTIONAL: Starting 2-second hi exchange');
+    console.log('🔄 BIDIRECTIONAL: Starting bidirectional stream for sender', sender);
 
     const stream = grpc.client(SayHiService.BidirectionalHi, {
       host: this.grpcWebEndpoint
@@ -153,12 +153,6 @@ export class SayHiGrpcService {
       responseSubject.complete();
     });
 
-    // Auto-close after 2 seconds
-    setTimeout(() => {
-      console.log('🔄 BIDIRECTIONAL: 2 seconds elapsed, closing');
-      stream.close();
-      responseSubject.complete();
-    }, 2000);
 
     return {
       responses: responseSubject.asObservable(),

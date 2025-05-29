@@ -10,7 +10,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@GrpcService
 @Service
 public class SayHiGrpcService extends SayHiServiceGrpc.SayHiServiceImplBase {
 
@@ -119,16 +118,6 @@ public class SayHiGrpcService extends SayHiServiceGrpc.SayHiServiceImplBase {
             private final AtomicInteger messageCount = new AtomicInteger(0);
             private volatile boolean isActive = true;
 
-            {
-                // Auto-close after 2 seconds
-                scheduler.schedule(() -> {
-                    if (isActive) {
-                        System.out.println("🔄 BIDIRECTIONAL: 2 seconds elapsed, closing stream");
-                        isActive = false;
-                        responseObserver.onCompleted();
-                    }
-                }, 2, TimeUnit.SECONDS);
-            }
 
             @Override
             public void onNext(HiRequest request) {

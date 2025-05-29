@@ -47,9 +47,7 @@ echo "🚀 Starting gRPC service..."
 podman run -d \
     --name grpc-service \
     --network grpc-network \
-    -p 9090:9090 \
-    -e SPRING_GRPC_SERVER_ADDRESS=grpc-service:9090 \
-    -e LOGGING_LEVEL_ROOT=TRACE \
+    -p 8080:8080 \
     sayhi-grpc-service
 
 # Wait for gRPC service to start
@@ -61,7 +59,7 @@ echo "🚀 Starting Envoy proxy..."
 podman run -d \
     --name envoy-proxy \
     --network grpc-network \
-    -p 8080:8080 \
+    -p 8081:8081 \
     -p 9901:9901 \
     -e ENVOY_UID=0 \
     -v ./envoy.yaml:/etc/envoy/envoy.yaml:ro \
@@ -83,8 +81,8 @@ podman run -d \
 echo "✅ All services started!"
 echo ""
 echo "📊 Service URLs:"
-echo "  🔧 Spring Boot gRPC: grpc://localhost:9090"
-echo "  🌐 Envoy gRPC-Web: http://localhost:8080"
+echo "  🔧 Spring Boot gRPC: grpc://localhost:8080"
+echo "  🌐 Envoy gRPC-Web: http://localhost:8081"
 echo "  📊 Envoy Admin: http://localhost:9901"
 echo "  🖥️  Angular App: http://localhost:4200"
 echo ""
