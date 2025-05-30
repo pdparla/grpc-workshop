@@ -4,7 +4,7 @@ import { grpc } from '@improbable-eng/grpc-web';
 
 // Import generated proto files (these will be created after running protoc)
 import { SayHiService } from '../../proto-gen/sayhi/sayhi_pb_service';
-import { HiRequest, HiResponse, HiCountRequest, HiCountResponse } from '../../proto-gen/sayhi/sayhi_pb';
+import { HiRequest, HiResponse, HiCountRequest} from '../../proto-gen/sayhi/sayhi_pb';
 
 @Injectable({
   providedIn: 'root'
@@ -47,53 +47,6 @@ export class SayHiGrpcService {
   }
 
   /**
-   * 2. CLIENT STREAMING RPC: Send multiple "hi" messages → Receive count
-   */
-  clientStreamHi(sender: string, count: number): Observable<HiCountResponse> {
-    return new Observable<HiCountResponse>(observer => {
-      console.log('📥 CLIENT STREAMING: Starting to send', count, 'hi messages');
-
-      const stream = grpc.client(SayHiService.ClientStreamHi, {
-        host: this.grpcWebEndpoint
-      });
-
-      stream.onEnd((status, statusMessage, trailers) => {
-        if (status === grpc.Code.OK) {
-          console.log('📥 CLIENT STREAMING: Stream completed successfully');
-        } else {
-          const error = new Error(`Client streaming failed: ${statusMessage}`);
-          console.error('❌ CLIENT STREAMING: Error:', error);
-          observer.error(error);
-        }
-      });
-
-      stream.onMessage((message: any) => {
-        const response = message as HiCountResponse;
-        console.log('📥 CLIENT STREAMING: Received final response:', response.toObject());
-        observer.next(response);
-        observer.complete();
-      });
-
-      // Send multiple messages
-      for (let i = 1; i <= count; i++) {
-        const request = new HiRequest();
-        request.setMessage(`hi #${i}`);
-        request.setSender(sender);
-        
-        console.log(`📥 CLIENT STREAMING: Sending message #${i}`);
-        stream.send(request);
-        
-        // Small delay between messages
-        setTimeout(() => {
-          if (i === count) {
-            stream.close();
-          }
-        }, i * 300);
-      }
-    });
-  }
-
-  /**
    * 3. SERVER STREAMING RPC: Send one request → Receive multiple "hi" messages
    */
   serverStreamHi(sender: string, count: number): Observable<HiResponse> {
@@ -126,48 +79,5 @@ export class SayHiGrpcService {
     });
   }
 
-  /**
-   * 4. BIDIRECTIONAL STREAMING RPC: Exchange "hi" messages for 2 seconds
-   */
-  bidirectionalHi(sender: string): { 
-    responses: Observable<HiResponse>, 
-    sendHi: (message: string) => void,
-    close: () => void 
-  } {
-    const responseSubject = new Subject<HiResponse>();
-    
-    console.log('🔄 BIDIRECTIONAL: Starting bidirectional stream for sender', sender);
-
-    const stream = grpc.client(SayHiService.BidirectionalHi, {
-      host: this.grpcWebEndpoint
-    });
-
-    stream.onMessage((message: any) => {
-      const response = message as HiResponse;
-      console.log('🔄 BIDIRECTIONAL: Received:', response.toObject());
-      responseSubject.next(response);
-    });
-
-    stream.onEnd((status, statusMessage, trailers) => {
-      console.log('🔄 BIDIRECTIONAL: Stream ended');
-      responseSubject.complete();
-    });
-
-
-    return {
-      responses: responseSubject.asObservable(),
-      sendHi: (message: string) => {
-        const request = new HiRequest();
-        request.setMessage(message);
-        request.setSender(sender);
-        
-        console.log('🔄 BIDIRECTIONAL: Sending:', message);
-        stream.send(request);
-      },
-      close: () => {
-        stream.close();
-        responseSubject.complete();
-      }
-    };
-  }
+  
 }
